@@ -23,6 +23,7 @@ type LogFormatterParams struct {
 	TimeStamp  time.Time
 	StatusCode int
 	Size       int
+	Duration   int64 // in ms
 }
 
 // LogFormatter gives the signature of the formatter function passed to CustomLoggingHandler
@@ -42,6 +43,7 @@ func (h loggingHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	logger := makeLogger(w)
 	url := *req.URL
 
+	startTime := time.Now()
 	h.handler.ServeHTTP(logger, req)
 
 	params := LogFormatterParams{
@@ -50,6 +52,7 @@ func (h loggingHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		TimeStamp:  t,
 		StatusCode: logger.Status(),
 		Size:       logger.Size(),
+		Duration:   int64(time.Now().Sub(startTime) / time.Millisecond),
 	}
 
 	h.formatter(h.writer, params)
