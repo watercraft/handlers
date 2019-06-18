@@ -39,20 +39,20 @@ type loggingHandler struct {
 }
 
 func (h loggingHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	t := time.Now()
 	logger := makeLogger(w)
 	url := *req.URL
 
 	startTime := time.Now()
 	h.handler.ServeHTTP(logger, req)
 
+	t := time.Now()
 	params := LogFormatterParams{
 		Request:    req,
 		URL:        url,
 		TimeStamp:  t,
 		StatusCode: logger.Status(),
 		Size:       logger.Size(),
-		Duration:   int64(time.Now().Sub(startTime) / time.Millisecond),
+		Duration:   int64(t.Sub(startTime) / time.Millisecond),
 	}
 
 	h.formatter(h.writer, params)
